@@ -173,26 +173,48 @@ export default function ReportPreview({ patientData, scores }) {
           <div style={{fontSize: '9px', fontWeight: 600, color: '#718096'}}>Psicologia Clínica</div>
         </div>
         
-        <div style={{marginBottom: '30px'}}>
+        <div 
+          className="editable-text" 
+          contentEditable={true} 
+          suppressContentEditableWarning={true} 
+          style={{marginBottom: '30px', padding: '10px'}}
+        >
           <p>Olá, {patientData.name.split(' ')[0]}</p>
           <p>Este relatório não é um laudo frio, mas sim um espelho. Nós juntamos as peças dos questionários da Terapia do Esquema para desenhar o mapa do seu mundo emocional interno.</p>
         </div>
 
         <h2>1. As Suas Feridas Emocionais</h2>
         <p>Os esquemas são cicatrizes emocionais da nossa história. Baseado nos seus resultados, os principais gatilhos que geram sofrimento hoje são:</p>
-        <div style={{marginBottom: '30px', paddingLeft: '10px'}}>
+        <div 
+          className="editable-text" 
+          contentEditable={true} 
+          suppressContentEditableWarning={true} 
+          style={{marginBottom: '30px', paddingLeft: '10px'}}
+        >
           {generateDynamicSchemas()}
         </div>
 
         <h2>2. O Teatro da Mente (Seus Modos)</h2>
         <p>A nossa mente funciona em "partes". Dependendo da situação, uma voz ou armadura diferente assume o controle. Aqui estão as vozes internas mais ativas no seu funcionamento atual:</p>
-        <div style={{marginBottom: '30px', paddingLeft: '10px'}}>
+        <div 
+          className="editable-text" 
+          contentEditable={true} 
+          suppressContentEditableWarning={true} 
+          style={{marginBottom: '30px', paddingLeft: '10px'}}
+        >
           {generateDynamicModes()}
         </div>
 
         <h2>3. O Processo Terapêutico</h2>
-        <p>Você não está desajustada, não é falha e nem é uma pessoa ruim. Você é apenas alguém que precisou vestir uma armadura para proteger uma criança ferida das vozes cruéis que moram na própria cabeça.</p>
-        <p>O trabalho da terapia, a partir de agora, é calar essas vozes punitivas, acolher sua criança interior com muito afeto e ensinar as suas armaduras que elas já podem descansar, pois não estamos mais naquele perigo original.</p>
+        <div 
+          className="editable-text" 
+          contentEditable={true} 
+          suppressContentEditableWarning={true} 
+          style={{padding: '10px'}}
+        >
+          <p>Você não está desajustada, não é falha e nem é uma pessoa ruim. Você é apenas alguém que precisou vestir uma armadura para proteger uma criança ferida das vozes cruéis que moram na própria cabeça.</p>
+          <p>O trabalho da terapia, a partir de agora, é calar essas vozes punitivas, acolher sua criança interior com muito afeto e ensinar as suas armaduras que elas já podem descansar, pois não estamos mais naquele perigo original.</p>
+        </div>
 
         <div className="pdf-footer no-screen">
           <div>
