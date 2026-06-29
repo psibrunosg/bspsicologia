@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import Home from './components/Home';
 import PatientForm from './components/PatientForm';
 import ScoresForm from './components/ScoresForm';
 import ReportPreview from './components/ReportPreview';
+import BeckScoresForm from './components/BeckScoresForm';
+import BeckReportPreview from './components/BeckReportPreview';
 import Login from './components/Login';
 import './index.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeModule, setActiveModule] = useState(null);
 
   useEffect(() => {
     if (localStorage.getItem('esquemasAuth') === 'true') {
@@ -20,6 +24,7 @@ function App() {
   };
 
   const [step, setStep] = useState(1);
+  
   const [patientData, setPatientData] = useState({
     name: 'Paciente Exemplo',
     dob: '01/01/1990',
@@ -39,15 +44,34 @@ function App() {
     yrai: { fuga: 6.0, distracao: 6.0, isolamento: 6.0, somatizacao: 6.0 }
   });
 
+  const [beckScores, setBeckScores] = useState({
+    bdi: 25,
+    bai: 18,
+    bhs: 12
+  });
+
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
 
+  if (!activeModule) {
+    return (
+      <div className="app-container">
+        <header className="no-print" style={{ position: 'relative' }}>
+          <h1>Hub de Relatórios Clínicos</h1>
+          <button onClick={() => { localStorage.removeItem('esquemasAuth'); setIsAuthenticated(false); }} style={{ position: 'absolute', top: '35px', right: '20px', background: 'transparent', border: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold' }}>Sair</button>
+        </header>
+        <Home onSelectModule={(mod) => { setActiveModule(mod); setStep(1); }} />
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
-      <header className="no-print">
-        <h1>Gerador de Relatórios Clínicos</h1>
-        <button onClick={() => { localStorage.removeItem('esquemasAuth'); setIsAuthenticated(false); }} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold' }}>Sair</button>
+      <header className="no-print" style={{ position: 'relative' }}>
+        <h1>{activeModule === 'esquemas' ? 'Mapa de Esquemas' : 'Escalas Beck'}</h1>
+        <button onClick={() => { setActiveModule(null); setStep(1); }} style={{ position: 'absolute', top: '35px', left: '20px', background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 'bold' }}>🏠 Voltar ao Início</button>
+        <button onClick={() => { localStorage.removeItem('esquemasAuth'); setIsAuthenticated(false); }} style={{ position: 'absolute', top: '35px', right: '20px', background: 'transparent', border: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold' }}>Sair</button>
       </header>
 
       <div className="wizard-nav no-print">
@@ -56,12 +80,22 @@ function App() {
         <button className={step === 3 ? 'wizard-btn active' : 'wizard-btn'} onClick={() => setStep(3)}>3. Exportar PDF</button>
       </div>
 
-      {step === 1 && <PatientForm data={patientData} setData={setPatientData} setScores={setScores} next={() => setStep(2)} />}
-      {step === 2 && <ScoresForm scores={scores} setScores={setScores} next={() => setStep(3)} />}
-      {step === 3 && (
+      {step === 1 && <PatientForm data={patientData} setData={setPatientData} setScores={activeModule === 'esquemas' ? setScores : setBeckScores} module={activeModule} next={() => setStep(2)} />}
+      
+      {step === 2 && activeModule === 'esquemas' && <ScoresForm scores={scores} setScores={setScores} next={() => setStep(3)} />}
+      {step === 2 && activeModule === 'beck' && <BeckScoresForm scores={beckScores} setScores={setBeckScores} next={() => setStep(3)} />}
+      
+      {step === 3 && activeModule === 'esquemas' && (
         <div>
           <button className="print-btn no-print" onClick={() => window.print()}>🖨️ Imprimir / Salvar PDF</button>
           <ReportPreview patientData={patientData} scores={scores} />
+        </div>
+      )}
+
+      {step === 3 && activeModule === 'beck' && (
+        <div>
+          <button className="print-btn no-print" onClick={() => window.print()}>🖨️ Imprimir / Salvar PDF</button>
+          <BeckReportPreview patientData={patientData} scores={beckScores} />
         </div>
       )}
     </div>

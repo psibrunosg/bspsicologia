@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function PatientForm({ data, setData, setScores, next }) {
+export default function PatientForm({ data, setData, setScores, next, module = 'esquemas' }) {
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
@@ -15,7 +15,6 @@ export default function PatientForm({ data, setData, setScores, next }) {
       parseMDContent(content);
     };
     reader.readAsText(file);
-    // Reset input so the same file can be uploaded again if needed
     e.target.value = null;
   };
 
@@ -24,7 +23,8 @@ export default function PatientForm({ data, setData, setScores, next }) {
     let currentSection = '';
     
     let newData = { ...data };
-    let newScores = { ysq: {}, ypiMae: {}, ypiPai: {}, smi: {}, yci: {}, yrai: {} };
+    let newEsquemaScores = { ysq: {}, ypiMae: {}, ypiPai: {}, smi: {}, yci: {}, yrai: {} };
+    let newBeckScores = { bdi: 0, bai: 0, bhs: 0 };
 
     lines.forEach(line => {
       if (line.startsWith('[')) {
@@ -46,30 +46,38 @@ export default function PatientForm({ data, setData, setScores, next }) {
         if (key === 'Profissional') newData.profName = val;
         if (key === 'CRP') newData.crp = val;
         if (key === 'Data') newData.evalDate = val;
-      } else {
+      } else if (module === 'beck' && currentSection === 'BECK') {
+        if (key === 'BDI') newBeckScores.bdi = parseInt(val);
+        if (key === 'BAI') newBeckScores.bai = parseInt(val);
+        if (key === 'BHS') newBeckScores.bhs = parseInt(val);
+      } else if (module === 'esquemas') {
         let stateKey = key.charAt(0).toLowerCase() + key.slice(1);
         const numVal = parseFloat(val);
         
-        if (currentSection === 'YSQ') newScores.ysq[stateKey] = numVal;
-        if (currentSection === 'SMI') newScores.smi[stateKey] = numVal;
-        if (currentSection === 'YPI_MAE') newScores.ypiMae[stateKey] = numVal;
-        if (currentSection === 'YPI_PAI') newScores.ypiPai[stateKey] = numVal;
-        if (currentSection === 'YCI') newScores.yci[stateKey] = numVal;
-        if (currentSection === 'YRAI') newScores.yrai[stateKey] = numVal;
+        if (currentSection === 'YSQ') newEsquemaScores.ysq[stateKey] = numVal;
+        if (currentSection === 'SMI') newEsquemaScores.smi[stateKey] = numVal;
+        if (currentSection === 'YPI_MAE') newEsquemaScores.ypiMae[stateKey] = numVal;
+        if (currentSection === 'YPI_PAI') newEsquemaScores.ypiPai[stateKey] = numVal;
+        if (currentSection === 'YCI') newEsquemaScores.yci[stateKey] = numVal;
+        if (currentSection === 'YRAI') newEsquemaScores.yrai[stateKey] = numVal;
       }
     });
 
     setData(newData);
-    setScores(prev => ({
-      ysq: { ...prev.ysq, ...newScores.ysq },
-      ypiMae: { ...prev.ypiMae, ...newScores.ypiMae },
-      ypiPai: { ...prev.ypiPai, ...newScores.ypiPai },
-      smi: { ...prev.smi, ...newScores.smi },
-      yci: { ...prev.yci, ...newScores.yci },
-      yrai: { ...prev.yrai, ...newScores.yrai }
-    }));
+    if (module === 'beck') {
+      setScores(prev => ({ ...prev, ...newBeckScores }));
+    } else {
+      setScores(prev => ({
+        ysq: { ...prev.ysq, ...newEsquemaScores.ysq },
+        ypiMae: { ...prev.ypiMae, ...newEsquemaScores.ypiMae },
+        ypiPai: { ...prev.ypiPai, ...newEsquemaScores.ypiPai },
+        smi: { ...prev.smi, ...newEsquemaScores.smi },
+        yci: { ...prev.yci, ...newEsquemaScores.yci },
+        yrai: { ...prev.yrai, ...newEsquemaScores.yrai }
+      }));
+    }
     
-    alert('Dados e Pontuações importados com sucesso!');
+    alert('Dados importados com sucesso!');
   };
 
   return (
